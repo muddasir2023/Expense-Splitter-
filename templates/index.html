@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Splitter</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    function addRow() {
+      const table = document.getElementById("participants");
+      const row = table.insertRow();
+      row.innerHTML = `
+        <td><input type="text" class="form-control" name="name" required></td>
+        <td><input type="number" class="form-control" name="amount" step="0.01" required></td>
+      `;
+    }
+
+    async function splitExpenses() {
+      const names = document.getElementsByName("name");
+      const amounts = document.getElementsByName("amount");
+      const participants = [];
+
+      for (let i = 0; i < names.length; i++) {
+        if (names[i].value && amounts[i].value) {
+          participants.push({ name: names[i].value, amount: parseFloat(amounts[i].value) });
+        }
+      }
+
+      const res = await fetch("/api/split", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participants })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerHTML = `
+        <h5>Each person should pay: Rs${data.per_person}</h5>
+        <ul class="list-group mt-2">
+          ${data.transactions.map(t => `<li class="list-group-item">${t}</li>`).join('')}
+        </ul>
+      `;
+    }
+  </script>
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <h1 class="mb-4">Expense Splitter</h1>
+    <table class="table" id="participants">
+      <tr>
+        <th>Name</th>
+        <th>Amount Spent (Rs)</th>
+      </tr>
+      <tr>
+        <td><input type="text" class="form-control" name="name" required></td>
+        <td><input type="number" class="form-control" name="amount" step="0.01" required></td>
+      </tr>
+    </table>
+    <button class="btn btn-secondary mb-3" onclick="addRow()">+ Add Person</button>
+    <br>
+    <button class="btn btn-primary" onclick="splitExpenses()">Split Expenses</button>
+    <div class="mt-4" id="result"></div>
+    <hr>
+    <a href="/docs">📄 View API Docs</a>
+  </div>
+</body>
+</html>

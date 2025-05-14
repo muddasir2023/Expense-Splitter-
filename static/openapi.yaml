@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  title: Expense Splitter API
+  version: 1.0.0
+paths:
+  /api/split:
+    post:
+      summary: Calculate how to split expenses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                participants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      amount:
+                        type: number
+      responses:
+        '200':
+          description: Splitting result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  per_person:
+                    type: number
+                  transactions:
+                    type: array
+                    items:
+                      type: string
